@@ -16,8 +16,7 @@ public class Server {
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                int portNum = clientSocket.getPort();
-                System.out.println("클라이언트가 접속하였습니다. " + portNum);
+                System.out.println("클라이언트가 접속하였습니다. ");
 
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 Thread thread = new Thread(clientHandler);
@@ -30,6 +29,8 @@ public class Server {
 
     private static class ClientHandler implements Runnable {
         private Socket clientSocket;
+
+        private Integer UniqueNum;
 
         public ClientHandler(Socket clientSocket) {
             this.clientSocket = clientSocket;
@@ -49,12 +50,17 @@ public class Server {
                     System.out.println("클라이언트로부터 메시지를 수신했습니다: " + receivedMessage);
 
                     char startchar = receivedMessage.charAt(0); // 타입 확인할 문자
-                    String MessageToFile = clientSocket.getPort() + " " + receivedMessage.substring(2); // 문자를 제외한 문자열
+                    String MessageToFile = receivedMessage.substring(2); // 문자를 제외한 문자열
+
                     if(startchar == 'A')
+                    {
+                        UniqueNum = Integer.getInteger(MessageToFile);
+                    }
+                    else if(startchar == 'B')
                     {
                         files.SaleFileWrite(MessageToFile, true);
                     }
-                    else if(startchar == 'B')
+                    else if(startchar == 'C')
                     {
                         files.SoldOutWrite(MessageToFile, true);
                     }

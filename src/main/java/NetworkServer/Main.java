@@ -2,10 +2,12 @@ package NetworkServer;
 
 import NetworkServer.server.Server;
 
-public class Main {
-    public static void main(String[]a) {
+import java.io.IOException;
 
-        new Server();
+public class Main {
+    public static void main(String[]a) throws IOException {
+
+//        new Server("localhost", 3000);
 
     }
 }

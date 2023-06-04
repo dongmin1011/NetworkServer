@@ -130,3 +130,28 @@ class Log_collect_port { // 포트 클래스
     }
 }
 
+class Log_collect_port_without_drink { // 포트 클래스
+    private int port; // 포트를 담는 이름
+    ArrayList<Log_collect_year> year; // 년도 클래스 동적 배열
+
+    public Log_collect_port_without_drink(int port) {
+        this.port = port; // 초기에 만들어질 시 이름을 담음
+        year = new ArrayList<Log_collect_year>(); // 동적 배열에 객체 생성
+    }
+
+    // 이름을 반환하는 함수
+    public int get_port() {
+        return port; // 음료 이름 반환
+    }
+
+    public int get_name_money() {
+        int i = 0; // 매출을 담는 변수
+
+        for (Log_collect_year temp : year) { // 일 동적 배열을 끝까지 돌음
+            i += temp.get_year_money(); // 일 동적 배열의 일 매출을 모두 더함
+        }
+
+        return i; // 더한 값을 반환
+    }
+}
+

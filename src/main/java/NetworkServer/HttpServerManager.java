@@ -16,23 +16,23 @@ public class HttpServerManager {
         private final int BACKLOG = 0;
         private HttpServer server = null;
 
-        String [] drinkName = new String [5];
-        int [] drinkPrice = new int [5];
-        int [] drinkStock = new int [5];
-
+        drinkList [] drinks= new drinkList[4];
 
         public HttpServerManager(String host, int port) throws IOException {
                 createServer(host, port);
-                for(int i=0; i<5; i++){
-                        drinkName[i] = "음료"+i;
-                        drinkPrice[i] = i;
-                }
+//                for(int i=0; i<5; i++){
+//                        drinkName[i] = "음료"+i;
+//                        drinkPrice[i] = i;
+//                }
         }
 
         private void createServer(String host, int port) throws IOException {
                 this.server = HttpServer.create(new InetSocketAddress(host, port), BACKLOG);
                 server.createContext("/", new RootHandler());
-                server.createContext("/sales", new SalesHandler());
+                server.createContext("/sales/1", new SalesHandler(0));
+                server.createContext("/sales/2", new SalesHandler(1));
+                server.createContext("/sales/3", new SalesHandler(2));
+                server.createContext("/sales/4", new SalesHandler(3));
         }
 
         public void start() {
@@ -59,18 +59,21 @@ public class HttpServerManager {
 //                        httpServerManager.stop(0);
 //                }
 //        }
-        public void setDrink(String[] names, int[] prices, int[] stocks){
-                drinkName = names;
-                drinkPrice = prices;
-                drinkStock = stocks;
+        public void setDrink(drinkList drink){
+//                drinkName = names;
+//                drinkPrice = prices;
+//                drinkStock = stocks;
 
-                for (int i = 0; i < 5; i++) {
-                        String name = drinkName[i];
-                        int price = drinkPrice[i];
+//                for (int i = 0; i < 5; i++) {
+//                        String name = drinkName[i];
+//                        int price = drinkPrice[i];
+//
+//                        System.out.println("Name: " + name + ", Price: " + price);
+//                        // 각 이름과 가격에 대한 추가 처리 로직 구현
+//                }
+                drinks[drink.getUniqueNum()-1] = drink;
 
-                        System.out.println("Name: " + name + ", Price: " + price);
-                        // 각 이름과 가격에 대한 추가 처리 로직 구현
-                }
+                System.out.println("generateDrinkNameArray() = " + generateDrinkNameArray(0));
         }
 
         private class RootHandler implements HttpHandler {
@@ -105,6 +108,11 @@ public class HttpServerManager {
 
 
         private class SalesHandler implements HttpHandler {
+                private int drinkIndex;
+
+                public SalesHandler(int drinkIndex) {
+                        this.drinkIndex = drinkIndex;
+                }
 
                 @Override
                 public void handle(HttpExchange exchange) throws IOException {
@@ -154,7 +162,7 @@ public class HttpServerManager {
                         response.append("           }");
                         response.append("           function showDrinkNameChange() {");
                         response.append("               var matrix = [");
-                        response.append("                   " + generateDrinkNameArray() + ",");
+                        response.append("                   " +generateDrinkNameArray(drinkIndex)+ ",");
                         response.append("                   ['<button onclick=\"changeDrinkName(0)\">변경</button>',");
                         response.append("                    '<button onclick=\"changeDrinkName(1)\">변경</button>',");
                         response.append("                    '<button onclick=\"changeDrinkName(2)\">변경</button>',");
@@ -194,9 +202,9 @@ public class HttpServerManager {
                         response.append("    table.style.border = '1px solid #ccc';");
                         response.append("    table.style.borderCollapse = 'collapse';");
 
-                        response.append("    var drinks = " + generateDrinkNameArray() + ";"); // 음료수의 이름 배열
+                        response.append("    var drinks = " + generateDrinkNameArray(drinkIndex) + ";"); // 음료수의 이름 배열
 
-                        response.append("    var prices = " + generateDrinkStockArray() + ";"); // 음료수의 가격 배열
+                        response.append("    var prices = " + generateDrinkStockArray(drinkIndex) + ";"); // 음료수의 가격 배열
 
                         response.append("    for (var i = 0; i < 2; i++) {"); // 2개의 행으로 수정
                         response.append("        var row = document.createElement('tr');");
@@ -241,42 +249,54 @@ public class HttpServerManager {
                         sendResponse(exchange, response.toString(), "text/html;charset=UTF-8");
                 }
         }
-        private String generateDrinkNameArray() {
+        private String generateDrinkNameArray(int i) {
                 StringBuilder arrayBuilder = new StringBuilder();
                 arrayBuilder.append("[");
-                for (int i = 0; i < drinkName.length; i++) {
-                        String name = drinkName[i];
-                        arrayBuilder.append("'").append(name).append("'");
-                        if (i < drinkName.length - 1) {
-                                arrayBuilder.append(", ");
+
+                if(drinks[i]!=null) {
+                        String[] name = drinks[i].getDrinksName();
+                        for (int j = 0; j < 5; j++) {
+                                arrayBuilder.append("'").append(name[j]).append("'");
+                                if (j < 4) {
+                                        arrayBuilder.append(", ");
+                                }
                         }
                 }
+
                 arrayBuilder.append("]");
                 return arrayBuilder.toString();
         }
-        private String generateDrinkPriceArray() {
+        private String generateDrinkPriceArray(int i) {
                 StringBuilder arrayBuilder = new StringBuilder();
                 arrayBuilder.append("[");
-                for (int i = 0; i < drinkPrice.length; i++) {
-                        int price = drinkPrice[i];
-                        arrayBuilder.append("'").append(price).append("'");
-                        if (i < drinkName.length - 1) {
-                                arrayBuilder.append(", ");
+
+                if(drinks[i]!=null) {
+                        int[] price = drinks[i].getDrinkPrice();
+                        for (int j = 0; j < 5; j++) {
+                                arrayBuilder.append("'").append(price[j]).append("'");
+                                if (j < 4) {
+                                        arrayBuilder.append(", ");
+                                }
                         }
                 }
+
                 arrayBuilder.append("]");
                 return arrayBuilder.toString();
         }
-        private String generateDrinkStockArray() {
+        private String generateDrinkStockArray(int i) {
                 StringBuilder arrayBuilder = new StringBuilder();
                 arrayBuilder.append("[");
-                for (int i = 0; i < drinkStock.length; i++) {
-                        int stock = drinkStock[i];
-                        arrayBuilder.append("'").append(stock).append("'");
-                        if (i < drinkName.length - 1) {
-                                arrayBuilder.append(", ");
+
+                if(drinks[i]!=null) {
+                        int[] stock = drinks[i].getDrinkStock();
+                        for (int j = 0; j < 5; j++) {
+                                arrayBuilder.append("'").append(stock[i]).append("'");
+                                if (j < 4) {
+                                        arrayBuilder.append(", ");
+                                }
                         }
                 }
+
                 arrayBuilder.append("]");
                 return arrayBuilder.toString();
         }

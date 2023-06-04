@@ -4,15 +4,50 @@ package NetworkServer;
 
 import java.io.Serializable;
 
-public class drinkList implements Serializable {
-    private String [] drinksName = new String[5];
-    private int [] drinkPrice = new int[5];
+public class drinkList {
 
-//    drinkList(VendingMachine vendingMachine){
-//        for(int i =0 ;i <5; i++){
-//            drinksName[i] = vendingMachine.getDrinks(i).getName();
-//            drinkPrice[i] = vendingMachine.getDrinks(i).getPrice();
-//        }
-//    }
 
+    private int uniqueNum;
+    private String [] drinksName ;
+    private int [] drinkPrice ;
+    private int [] drinkStock ;
+
+    public drinkList(int c, String[] names, int[] price, int[] stock){
+        uniqueNum =c;
+        drinksName = names;
+        drinkPrice = price;
+        drinkStock = stock;
+    }
+
+    public void setUniqueNum(int uniqueNum) {
+        this.uniqueNum = uniqueNum;
+    }
+
+    public void setDrinksName(String[] drinksName) {
+        this.drinksName = drinksName;
+    }
+
+    public void setDrinkPrice(int[] drinkPrice) {
+        this.drinkPrice = drinkPrice;
+    }
+
+    public void setDrinkStock(int[] drinkStock) {
+        this.drinkStock = drinkStock;
+    }
+
+    public int getUniqueNum() {
+        return uniqueNum;
+    }
+
+    public String[] getDrinksName() {
+        return drinksName;
+    }
+
+    public int[] getDrinkPrice() {
+        return drinkPrice;
+    }
+
+    public int[] getDrinkStock() {
+        return drinkStock;
+    }
 }

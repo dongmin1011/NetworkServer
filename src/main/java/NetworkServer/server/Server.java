@@ -1,6 +1,7 @@
 package NetworkServer.server;
 
 import NetworkServer.HttpServerManager;
+import NetworkServer.drinkList;
 import NetworkServer.server.FileIO;
 import java.io.*;
 import java.net.*;
@@ -62,7 +63,10 @@ public class Server {
                 bytesRead = inputStream.read(buffer);
                 String initData = new String(buffer, 0, bytesRead);
                 System.out.println("클라이언트로부터 메시지를 수신했습니다: " + initData);
-                String[] words = initData.split(" ");
+                int number = Character.getNumericValue(initData.charAt(0));
+                String drinkData = initData.substring(1);
+
+                String[] words = drinkData.split(" ");
 
                 String [] names = new String [5];
                 int [] prices = new int [5];
@@ -81,7 +85,7 @@ public class Server {
                     // 각 이름과 가격에 대한 추가 처리 로직 구현
                 }
 
-                httpServerManager.setDrink(names, prices, stocks);
+                httpServerManager.setDrink(new drinkList(number, names, prices, stocks));
 
 
                 while ((bytesRead = inputStream.read(buffer)) != -1) {

@@ -6,9 +6,10 @@ import NetworkServer.server.Log_collect_port;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -23,7 +24,7 @@ public class HttpServerManager {
         static FileIO files = new FileIO();
         static ArrayList<Log_collect_port> logArray = new ArrayList<>();
         static ArrayList<Log_collect_port_without_drink> without_drinks = new ArrayList<>();
-        drinkList[] drinks= new drinkList[4];
+        drinkList[] drinks = new drinkList[4];
         List<List<String> > drinkMoneyList;
         List<List<String> > drinkDateList;
 
@@ -42,7 +43,8 @@ public class HttpServerManager {
                 server.createContext("/sales/2", new SalesHandler(1));
                 server.createContext("/sales/3", new SalesHandler(2));
                 server.createContext("/sales/4", new SalesHandler(3));
-
+                server.createContext("/changePrice", new ChangePrice());
+                server.createContext("/changeName", new ChangeName());
                 updateList();
 
 
@@ -72,7 +74,7 @@ public class HttpServerManager {
 //                        httpServerManager.stop(0);
 //                }
 //        }
-        public void setDrink(drinkList drink){
+        public void setDrink(drinkList[] drink){
 //                drinkName = names;
 //                drinkPrice = prices;
 //                drinkStock = stocks;
@@ -84,10 +86,11 @@ public class HttpServerManager {
 //                        System.out.println("Name: " + name + ", Price: " + price);
 //                        // 각 이름과 가격에 대한 추가 처리 로직 구현
 //                }
-                drinks[drink.getUniqueNum()-1] = drink;
+                drinks = drink;
 
-                System.out.println("generateDrinkNameArray() = " + generateDrinkNameArray(0));
+//                System.out.println("generateDrinkNameArray() = " + generateDrinkNameArray(0));
         }
+
         public void updateList(){
                 files.get_Drink_info(logArray);
                 drinkMoneyList = files.get_Drink_month_day_money(logArray);
@@ -129,6 +132,95 @@ public class HttpServerManager {
                         sendResponse(exchange, response.toString(), "text/html;charset=UTF-8");
                 }
         }
+        private class ChangePrice implements HttpHandler {
+                int index, price;
+                int drinkIndex;
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+
+                        InputStream requestBodyStream = exchange.getRequestBody();
+                        BufferedReader requestBodyReader = new BufferedReader(new InputStreamReader(requestBodyStream));
+                        StringBuilder requestBodyBuilder = new StringBuilder();
+                        String line;
+                        while ((line = requestBodyReader.readLine()) != null) {
+                                requestBodyBuilder.append(line);
+                        }
+                        String requestBody = requestBodyBuilder.toString();
+//                        System.out.println("requestBody[] = " + json.requestBody);
+
+                        try {
+                                JSONObject json = new JSONObject(requestBody);
+                                index = json.getInt("index");
+                                price = json.getInt("newPrice");
+                                drinkIndex = json.getInt("machineIndex");
+
+                        } catch (JSONException e) {
+                                throw new RuntimeException(e);
+                        }
+                        System.out.println("drinkIndex = " + drinkIndex);
+                        System.out.println("index = " + index);
+                        System.out.println("price = " + price);
+
+                        drinks[drinkIndex].setDrinkPrice(index, price);
+
+                        int[] drinkPrice = drinks[drinkIndex].getDrinkPrice();
+                        System.out.println("drinkPrice[index] = " + drinkPrice[index]);
+
+                        // 요청 처리 로직에 requestBody 활용
+                        // ...
+
+                        // 응답 보내기
+                        String response = "가격수정완료";
+                        exchange.sendResponseHeaders(200, response.getBytes().length);
+                        exchange.getResponseBody().write(response.getBytes());
+                        exchange.getResponseBody().close();
+                }
+        }
+        private class ChangeName implements HttpHandler {
+                int index;
+                String name;
+                int drinkIndex;
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+
+                        InputStream requestBodyStream = exchange.getRequestBody();
+                        BufferedReader requestBodyReader = new BufferedReader(new InputStreamReader(requestBodyStream));
+                        StringBuilder requestBodyBuilder = new StringBuilder();
+                        String line;
+                        while ((line = requestBodyReader.readLine()) != null) {
+                                requestBodyBuilder.append(line);
+                        }
+                        String requestBody = requestBodyBuilder.toString();
+//                        System.out.println("requestBody[] = " + json.requestBody);
+
+                        try {
+                                JSONObject json = new JSONObject(requestBody);
+                                index = json.getInt("index");
+                                name = json.getString("newName");
+                                drinkIndex = json.getInt("machineIndex");
+
+                        } catch (JSONException e) {
+                                throw new RuntimeException(e);
+                        }
+                        System.out.println("drinkIndex = " + drinkIndex);
+                        System.out.println("index = " + index);
+                        System.out.println("price = " + name);
+
+                        drinks[drinkIndex].setDrinksName(index, name);
+
+                        String [] drinkName = drinks[drinkIndex].getDrinksName();
+                        System.out.println("drinkName[index] = " + drinkName[index]);
+
+                        // 요청 처리 로직에 requestBody 활용
+                        // ...
+
+                        // 응답 보내기
+                        String response = "가격수정완료";
+                        exchange.sendResponseHeaders(200, response.getBytes().length);
+                        exchange.getResponseBody().write(response.getBytes());
+                        exchange.getResponseBody().close();
+                }
+        }
 
 
         private class SalesHandler implements HttpHandler {
@@ -160,7 +252,8 @@ public class HttpServerManager {
                         response.append("   <body>");
                         response.append("       <h1>" + buttonNumber + "번 자판기 정보를 표시합니다.</h1>");
 //                        response.append("       <p>매출현황 정보를 표시합니다.</p>");
-                        response.append("       <button onclick=\"buttonClicked('/')\">Go Back</button><br>");
+                        response.append("       <button onclick=\"buttonClicked('/')\">Go Back</button>");
+                        response.append("       <button onclick=\"buttonRefresh('/')\">새로고침</button><br>");
                         response.append("       <button onclick=\"showDrinkMoneyList()\">음료수별 매출현황</button>");
                         response.append("       <button onclick=\"showDrinkNameChange()\">음료이름 변경</button>");
                         response.append("       <button onclick=\"showDrinkStockChange()\">음료재고 현황</button>");
@@ -203,6 +296,12 @@ public class HttpServerManager {
                         response.append("    document.getElementById('output').appendChild(scrollContainer);");
                         response.append("}");
 
+                        response.append("function buttonRefresh() {");
+                        response.append("              location.reload();");
+
+
+                        response.append("}");
+
                         response.append("function showDrinkDateList() {");
                         response.append("    document.getElementById('output').innerHTML = '';");  // 기존 출력 내용 초기화
 
@@ -236,6 +335,7 @@ public class HttpServerManager {
 
 
                         response.append("           function showDrinkNameChange() {");
+
                         response.append("               var matrix = [");
                         response.append("                   " +generateDrinkNameArray(drinkIndex)+ ",");
                         response.append("                   ['<button onclick=\"changeDrinkName(0)\">변경</button>',");
@@ -329,26 +429,68 @@ public class HttpServerManager {
                         response.append("               document.getElementById('output').innerHTML = '음료별 매출현황이 출력됩니다.';");
                         response.append("               hideScrollContainer();");
                         response.append("           }");
-                        response.append("           function changeDrinkName(index) {");
-                        response.append("               var newName = prompt('변경할 음료 이름을 입력하세요:');");
-                        response.append("               if (newName) {");
-                        response.append("                   document.getElementById('output').innerHTML = '음료 ' + (index + 1) + '의 이름이 ' + newName + '으로 변경되었습니다.';");
-                        response.append("               } else {");
-                        response.append("                   document.getElementById('output').innerHTML = '음료 이름 변경이 취소되었습니다.';");
-                        response.append("               }");
-                        response.append("               hideScrollContainer();");
-                        response.append("           }");
+                        response.append("function changeDrinkName(index) {");
+                        response.append("    var newName = prompt('변경할 음료 이름을 입력하세요:');");
+                        response.append("    if (newName) {");
+                        response.append("        var data = {");
+                        response.append("            machineIndex: "+drinkIndex+",");
+                        response.append("            index: index,");
+                        response.append("            newName: newName");
+                        response.append("        };");
+                        response.append("        fetch('http://localhost:3000/changeName', {");
+                        response.append("            method: 'POST',");
+                        response.append("            body: JSON.stringify(data),");
+                        response.append("            headers: { 'Content-Type': 'application/json' }");
+                        response.append("        })");
+                        response.append("        .then(function(response) {");
+                        response.append("            return response.text();");
+                        response.append("        })");
+                        response.append("        .then(function(data) {");
+                        response.append("              location.reload();");
+                        response.append("            document.getElementById('output').innerHTML = data;");
+                        response.append("        })");
+                        response.append("        .catch(function(error) {");
+                        response.append("            console.log('Error:', error);");
+                        response.append("        });");
 
-                        response.append("           function changeDrinkPrice(index) {");
-                        response.append("               var newPrice = prompt('변경할 음료 가격을 입력하세요:');");
 
-                        response.append("               if (newPrice) {");
-                        response.append("                   document.getElementById('output').innerHTML = '음료 ' + (index + 1) + '의 가격이 ' + newPrice + '으로 변경되었습니다.';");
-                        response.append("               } else {");
-                        response.append("                   document.getElementById('output').innerHTML = '음료 가격 변경이 취소되었습니다.';");
-                        response.append("               }");
-                        response.append("               hideScrollContainer();");
-                        response.append("           }");
+                        response.append("    } else {");
+                        response.append("        document.getElementById('output').innerHTML = '음료 이름 변경이 취소되었습니다.';");
+                        response.append("    }");
+                        response.append("    hideScrollContainer();");
+                        response.append("}");
+
+                        response.append("function changeDrinkPrice(index) {");
+                        response.append("    var newPrice = prompt('변경할 음료 가격을 입력하세요:');");
+                        response.append("    if (newPrice) {");
+                        response.append("        var data = {");
+                        response.append("            machineIndex: "+drinkIndex+",");
+                        response.append("            index: index,");
+                        response.append("            newPrice: newPrice");
+                        response.append("        };");
+                        response.append("        fetch('http://localhost:3000/changePrice', {");
+                        response.append("            method: 'POST',");
+                        response.append("            body: JSON.stringify(data),");
+                        response.append("            headers: { 'Content-Type': 'application/json' }");
+                        response.append("        })");
+                        response.append("        .then(function(response) {");
+                        response.append("            return response.text();");
+                        response.append("        })");
+                        response.append("        .then(function(data) {");
+                        response.append("              location.reload();");
+                        response.append("            document.getElementById('output').innerHTML = data;");
+                        response.append("        })");
+                        response.append("        .catch(function(error) {");
+                        response.append("            console.log('Error:', error);");
+                        response.append("        });");
+//                        response.append("        document.getElementById('output').innerHTML = data['newPrice'];");
+//                        response.append("Console.log(data)");
+
+                        response.append("    } else {");
+                        response.append("        document.getElementById('output').innerHTML = '음료 가격 변경이 취소되었습니다.';");
+                        response.append("    }");
+                        response.append("    hideScrollContainer();");
+                        response.append("}");
 
 
                         response.append("       </script>");
@@ -365,6 +507,7 @@ public class HttpServerManager {
                 if(drinks[i]!=null) {
                         String[] name = drinks[i].getDrinksName();
                         for (int j = 0; j < 5; j++) {
+                                System.out.println("name[j] = " + name[j]);
                                 arrayBuilder.append("'").append(name[j]).append("'");
                                 if (j < 4) {
                                         arrayBuilder.append(", ");

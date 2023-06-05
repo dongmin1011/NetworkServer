@@ -15,6 +15,10 @@ public class drinkList {
 
     private List<String > drinkMoneyList;
 
+    public drinkList(int uniqueNum) {
+        this.uniqueNum = uniqueNum;
+    }
+
     public drinkList(int c, String[] names, int[] price, int[] stock){
         uniqueNum =c;
         drinksName = names;
@@ -26,12 +30,12 @@ public class drinkList {
         this.uniqueNum = uniqueNum;
     }
 
-    public void setDrinksName(String[] drinksName) {
-        this.drinksName = drinksName;
+    public void setDrinksName(int index, String drinksName) {
+        this.drinksName[index] = drinksName;
     }
 
-    public void setDrinkPrice(int[] drinkPrice) {
-        this.drinkPrice = drinkPrice;
+    public void setDrinkPrice(int index, int drinkPrice) {
+        this.drinkPrice[index] = drinkPrice;
     }
 
     public void setDrinkStock(int[] drinkStock) {

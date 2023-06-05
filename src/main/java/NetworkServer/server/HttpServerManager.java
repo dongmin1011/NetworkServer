@@ -43,7 +43,7 @@ public class HttpServerManager {
                 server.createContext("/sales/3", new SalesHandler(2));
                 server.createContext("/sales/4", new SalesHandler(3));
 
-
+                updateList();
 
 
         }
@@ -138,6 +138,8 @@ public class HttpServerManager {
                 public SalesHandler(int drinkIndex) {
                         this.drinkIndex = drinkIndex;
                 }
+
+
 
 
 
@@ -340,7 +342,7 @@ public class HttpServerManager {
                         response.append("           function changeDrinkPrice(index) {");
                         response.append("               var newPrice = prompt('변경할 음료 가격을 입력하세요:');");
 
-                        response.append("               if (newName) {");
+                        response.append("               if (newPrice) {");
                         response.append("                   document.getElementById('output').innerHTML = '음료 ' + (index + 1) + '의 가격이 ' + newPrice + '으로 변경되었습니다.';");
                         response.append("               } else {");
                         response.append("                   document.getElementById('output').innerHTML = '음료 가격 변경이 취소되었습니다.';");

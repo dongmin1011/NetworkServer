@@ -43,13 +43,7 @@ public class HttpServerManager {
                 server.createContext("/sales/3", new SalesHandler(2));
                 server.createContext("/sales/4", new SalesHandler(3));
 
-                files.get_Drink_info(logArray);
-                drinkMoneyList = files.get_Drink_month_day_money(logArray);
-                System.out.println("drinkMoneyList = " + drinkMoneyList);
 
-
-                files.get_withoutDrink_info(without_drinks);
-                drinkDateList = files.get_Drink_month_day_money_without_drink(without_drinks);
 
 
         }
@@ -93,6 +87,15 @@ public class HttpServerManager {
                 drinks[drink.getUniqueNum()-1] = drink;
 
                 System.out.println("generateDrinkNameArray() = " + generateDrinkNameArray(0));
+        }
+        public void updateList(){
+                files.get_Drink_info(logArray);
+                drinkMoneyList = files.get_Drink_month_day_money(logArray);
+                System.out.println("drinkMoneyList = " + drinkMoneyList);
+
+
+                files.get_withoutDrink_info(without_drinks);
+                drinkDateList = files.get_Drink_month_day_money_without_drink(without_drinks);
         }
 
 

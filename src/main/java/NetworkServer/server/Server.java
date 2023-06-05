@@ -116,7 +116,7 @@ public class Server {
 //                    }
                     // 수신 받은 데이터를 포트 번호와 함께 파일로 입력
 
-
+                    httpServerManager.updateList();
 
 
                     // 받은 데이터를 클라이언트에게 다시 전송

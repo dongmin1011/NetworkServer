@@ -1,5 +1,8 @@
-package NetworkServer;
+package NetworkServer.server;
 
+import NetworkServer.drinkList;
+import NetworkServer.server.FileIO;
+import NetworkServer.server.Log_collect_port;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -9,14 +12,20 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class HttpServerManager {
         private final String HOSTNAME = "0.0.0.0";
         private final int BACKLOG = 0;
         private HttpServer server = null;
-
-        drinkList [] drinks= new drinkList[4];
+        static FileIO files = new FileIO();
+        static ArrayList<Log_collect_port> logArray = new ArrayList<>();
+        static ArrayList<Log_collect_port_without_drink> without_drinks = new ArrayList<>();
+        drinkList[] drinks= new drinkList[4];
+        List<List<String> > drinkMoneyList;
+        List<List<String> > drinkDateList;
 
         public HttpServerManager(String host, int port) throws IOException {
                 createServer(host, port);
@@ -33,6 +42,16 @@ public class HttpServerManager {
                 server.createContext("/sales/2", new SalesHandler(1));
                 server.createContext("/sales/3", new SalesHandler(2));
                 server.createContext("/sales/4", new SalesHandler(3));
+
+                files.get_Drink_info(logArray);
+                drinkMoneyList = files.get_Drink_month_day_money(logArray);
+                System.out.println("drinkMoneyList = " + drinkMoneyList);
+
+
+                files.get_withoutDrink_info(without_drinks);
+                drinkDateList = files.get_Drink_month_day_money_without_drink(without_drinks);
+
+
         }
 
         public void start() {
@@ -76,6 +95,8 @@ public class HttpServerManager {
                 System.out.println("generateDrinkNameArray() = " + generateDrinkNameArray(0));
         }
 
+
+
         private class RootHandler implements HttpHandler {
                 @Override
                 public void handle(HttpExchange exchange) throws IOException {
@@ -110,9 +131,12 @@ public class HttpServerManager {
         private class SalesHandler implements HttpHandler {
                 private int drinkIndex;
 
+
                 public SalesHandler(int drinkIndex) {
                         this.drinkIndex = drinkIndex;
                 }
+
+
 
                 @Override
                 public void handle(HttpExchange exchange) throws IOException {
@@ -132,9 +156,10 @@ public class HttpServerManager {
                         response.append("       <h1>" + buttonNumber + "번 자판기 정보를 표시합니다.</h1>");
 //                        response.append("       <p>매출현황 정보를 표시합니다.</p>");
                         response.append("       <button onclick=\"buttonClicked('/')\">Go Back</button><br>");
-                        response.append("       <button onclick=\"showDaySales()\">날짜별 매출현황</button>");
+                        response.append("       <button onclick=\"showDrinkMoneyList()\">음료수별 매출현황</button>");
                         response.append("       <button onclick=\"showDrinkNameChange()\">음료이름 변경</button>");
                         response.append("       <button onclick=\"showDrinkStockChange()\">음료재고 현황</button>");
+                        response.append("       <button onclick=\"showDrinkDateList()\">날짜별 매출현황</button>");
 
                         response.append("       <div id=\"output\"></div>");
 
@@ -142,24 +167,69 @@ public class HttpServerManager {
                         response.append("           function buttonClicked(url) {");
                         response.append("               window.location.href = url;");
                         response.append("           }");
-                        response.append("           function showDaySales() {");
-                        response.append("               document.getElementById('output').innerHTML = '';");
-                        response.append("               var scrollContainer = document.createElement('div');");
-                        response.append("               scrollContainer.id = 'scrollContainer';");
-                        response.append("               scrollContainer.style.overflow = 'scroll';");
-                        response.append("               scrollContainer.style.height = '300px';");
-                        response.append("               scrollContainer.style.border = '1px solid #ccc';");
+                        response.append("function showDrinkMoneyList() {");
+                        response.append("    document.getElementById('output').innerHTML = '';");  // 기존 출력 내용 초기화
 
-                        response.append("               var scrollContent = document.createElement('div');");
-                        response.append("               scrollContent.style.width = '1000px';");
-                        response.append("               scrollContent.style.height = '200px';");
-//                        response.append("               scrollContent.style.background = '#f7f7f7';");
-//                        response.append("               scrollContent.style.padding = '10px';");
-//                        response.append("               scrollContent.innerHTML = '스크롤 페이지 내용입니다.';");
+                        response.append("    var scrollContainer = document.createElement('div');");
+                        response.append("    scrollContainer.id = 'scrollContainer';");
+                        response.append("    scrollContainer.style.overflow = 'scroll';");
+                        response.append("    scrollContainer.style.height = '500px';");
+                        response.append("    scrollContainer.style.border = '1px solid #ccc';");
 
-                        response.append("               scrollContainer.appendChild(scrollContent);");
-                        response.append("               document.getElementById('output').appendChild(scrollContainer);");
-                        response.append("           }");
+                        response.append("    var scrollContent = document.createElement('div');");
+                        response.append("    scrollContent.style.width = '1000px';");
+                        response.append("    scrollContent.style.height = '100px';");
+
+                        if(drinkMoneyList.get(drinkIndex)!=null) {
+//                                System.out.println("\"...\" = " + "...");
+                                for (String str : drinkMoneyList.get(drinkIndex)) {
+                                        response.append("    var paragraph = document.createElement('p');");
+                                        response.append("    paragraph.textContent = '" + str + "';");
+                                        response.append("    scrollContent.appendChild(paragraph);");
+                                }
+                        }
+                        else {
+                                response.append("    var paragraph = document.createElement('p');");
+                                response.append("    paragraph.textContent = '" + "no" + "';");
+                                response.append("    scrollContent.appendChild(paragraph);");
+                        }
+
+                        response.append("    scrollContainer.appendChild(scrollContent);");
+                        response.append("    document.getElementById('output').appendChild(scrollContainer);");
+                        response.append("}");
+
+                        response.append("function showDrinkDateList() {");
+                        response.append("    document.getElementById('output').innerHTML = '';");  // 기존 출력 내용 초기화
+
+                        response.append("    var scrollContainer = document.createElement('div');");
+                        response.append("    scrollContainer.id = 'scrollContainer';");
+                        response.append("    scrollContainer.style.overflow = 'scroll';");
+                        response.append("    scrollContainer.style.height = '500px';");
+                        response.append("    scrollContainer.style.border = '1px solid #ccc';");
+
+                        response.append("    var scrollContent = document.createElement('div');");
+                        response.append("    scrollContent.style.width = '1000px';");
+                        response.append("    scrollContent.style.height = '100px';");
+
+                        if(drinkDateList.get(drinkIndex)!=null) {
+//                                System.out.println("\"...\" = " + "...");
+                                for (String str : drinkDateList.get(drinkIndex)) {
+                                        response.append("    var paragraph = document.createElement('p');");
+                                        response.append("    paragraph.textContent = '" + str + "';");
+                                        response.append("    scrollContent.appendChild(paragraph);");
+                                }
+                        }
+                        else {
+                                response.append("    var paragraph = document.createElement('p');");
+                                response.append("    paragraph.textContent = '" + "no" + "';");
+                                response.append("    scrollContent.appendChild(paragraph);");
+                        }
+
+                        response.append("    scrollContainer.appendChild(scrollContent);");
+                        response.append("    document.getElementById('output').appendChild(scrollContainer);");
+                        response.append("}");
+
+
                         response.append("           function showDrinkNameChange() {");
                         response.append("               var matrix = [");
                         response.append("                   " +generateDrinkNameArray(drinkIndex)+ ",");
@@ -167,7 +237,14 @@ public class HttpServerManager {
                         response.append("                    '<button onclick=\"changeDrinkName(1)\">변경</button>',");
                         response.append("                    '<button onclick=\"changeDrinkName(2)\">변경</button>',");
                         response.append("                    '<button onclick=\"changeDrinkName(3)\">변경</button>',");
-                        response.append("                    '<button onclick=\"changeDrinkName(4)\">변경</button>']");
+                        response.append("                    '<button onclick=\"changeDrinkName(4)\">변경</button>'],");
+                        response.append("                   " +  generateDrinkPriceArray(drinkIndex) +" ,");
+                        response.append("                   ['<button onclick=\"changeDrinkPrice(0)\">변경</button>',");
+                        response.append("                    '<button onclick=\"changeDrinkPrice(1)\">변경</button>',");
+                        response.append("                    '<button onclick=\"changeDrinkPrice(2)\">변경</button>',");
+                        response.append("                    '<button onclick=\"changeDrinkPrice(3)\">변경</button>',");
+                        response.append("                    '<button onclick=\"changeDrinkPrice(4)\">변경</button>']");
+
                         response.append("               ];");
                         response.append("               var tableHTML = '<table>';");
                         // ...
@@ -184,6 +261,20 @@ public class HttpServerManager {
                         response.append("               tableHTML += '<tr>';");
                         response.append("               for (var i = 0; i < matrix[1].length; i++) {");
                         response.append("                   tableHTML += '<td>' + matrix[1][i] + '</td>';");
+                        response.append("               }");
+                        response.append("               tableHTML += '</tr>';");
+
+
+                        response.append("               tableHTML += '<tr>';");
+                        response.append("               for (var i = 0; i < matrix[2].length; i++) {");
+                        response.append("                   tableHTML += '<td>' + matrix[2][i] + '</td>';");
+                        response.append("               }");
+                        response.append("               tableHTML += '</tr>';");
+
+// 네 번째 행에 버튼 추가
+                        response.append("               tableHTML += '<tr>';");
+                        response.append("               for (var i = 0; i < matrix[3].length; i++) {");
+                        response.append("                   tableHTML += '<td>' + matrix[3][i] + '</td>';");
                         response.append("               }");
                         response.append("               tableHTML += '</tr>';");
 
@@ -242,6 +333,19 @@ public class HttpServerManager {
                         response.append("               }");
                         response.append("               hideScrollContainer();");
                         response.append("           }");
+
+                        response.append("           function changeDrinkPrice(index) {");
+                        response.append("               var newPrice = prompt('변경할 음료 가격을 입력하세요:');");
+
+                        response.append("               if (newName) {");
+                        response.append("                   document.getElementById('output').innerHTML = '음료 ' + (index + 1) + '의 가격이 ' + newPrice + '으로 변경되었습니다.';");
+                        response.append("               } else {");
+                        response.append("                   document.getElementById('output').innerHTML = '음료 가격 변경이 취소되었습니다.';");
+                        response.append("               }");
+                        response.append("               hideScrollContainer();");
+                        response.append("           }");
+
+
                         response.append("       </script>");
                         response.append("   </body>");
                         response.append("</html>");

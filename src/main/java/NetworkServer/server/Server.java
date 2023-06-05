@@ -1,17 +1,17 @@
 package NetworkServer.server;
 
-import NetworkServer.HttpServerManager;
 import NetworkServer.drinkList;
-import NetworkServer.server.FileIO;
+
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 public class Server {
 
     static FileIO files = new FileIO();
 
 
-
+    static ArrayList<Log_collect_port> logArray = new ArrayList<>();
 
 
     static HttpServerManager httpServerManager = null;
@@ -25,6 +25,8 @@ public class Server {
 
             httpServerManager = new HttpServerManager("localhost", 3000);
             httpServerManager.start();
+
+//            httpServerManager.setDrinkMoneyList(files.get_Drink_month_day_money());
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
@@ -113,6 +115,8 @@ public class Server {
 //                        continue;
 //                    }
                     // 수신 받은 데이터를 포트 번호와 함께 파일로 입력
+
+
 
 
                     // 받은 데이터를 클라이언트에게 다시 전송

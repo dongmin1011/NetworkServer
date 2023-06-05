@@ -56,6 +56,7 @@ import NetworkServer.server.*;
                 while (true) { // 계속 반복하는 반복문
                     String log = read.readLine(); // 파일에서 한 줄의 문자열을 가져옴
                     if (log == null) // 파일이 끝나면
+
                         break; // 반복문 종료
                     UpdateLogFile(log, logfile);
                 }
@@ -85,8 +86,10 @@ import NetworkServer.server.*;
             try {
                 StringTokenizer st = new StringTokenizer(log, " 원 일 년 월"); // 띄어쓰기와 원을 구분자로 문자열을 나눔
 
+
                 int port = Integer.parseInt(st.nextToken());
                 // 나눈 첫 부위는 포트이므로 문자열을 숫자로 변환하여 년도에 넣음
+
 
                 int year = Integer.parseInt(st.nextToken());
                 // 나눈 첫 부위는 년도이므로 문자열을 숫자로 변환하여 년도에 넣음
@@ -99,6 +102,7 @@ import NetworkServer.server.*;
 
                 String name = st.nextToken();
                 // 나눈 네번째 부위는 이름이므로 문자열 넣음
+//                System.out.println("name = " + name);
 
                 int price = Integer.parseInt(st.nextToken());
                 // 나눈 다섯번째 부위는 가격이므로 문자열을 정수로 변환하여 달 숫자에 넣음
@@ -132,7 +136,8 @@ import NetworkServer.server.*;
                         }
                     }
                     if (flag_port == 1) {
-                        for (int i2 = 0; i2 < logfile.size(); i2++) { // 먼저 음료 동적 배열을 탐색
+                        for (int i2 = 0; i2 < logfile.get(port_index).drink.size(); i2++) { // 먼저 음료 동적 배열을 탐색
+//                            System.out.println("i2 = " +logfile.get(port_index).drink.get(i2).get_name() + name);
                             if (logfile.get(port_index).drink.get(i2).get_name().equals(name)) { // 같은 이름이 있으면
                                 flag_name = 1; // 배열에 음료 이름이 존재하면 존재 한다고 체크
                                 name_index = i2; // 그 음료 인덱스를 담음
@@ -199,11 +204,14 @@ import NetworkServer.server.*;
                             }
                             flag_year = 0; // 다시 같은 년을 동적 배열에서 찾기 위하여 다시 0을 담음
                         } else { // 같은 음료 이름이 없으면
+//                            System.out.println(" = " + "같은이름없음");
                             Log_collect_name array_name = new Log_collect_name(name); // 해당 음료 이름 클래스 생성
+//                            System.out.println("array_name.get_name() = " + array_name.get_name());
                             Log_collect_year array_year = new Log_collect_year(year); // 해당 년도 클래스 생성
                             Log_collect_month array_month = new Log_collect_month(month); // 해당 달 클래스 생성
                             Log_collect_day array_day = new Log_collect_day(day, price); // 헤당 날 클래스 생성
                             logfile.get(port_index).drink.add(array_name);
+//                            System.out.println("logfile = " + logfile.get(port_index).drink.get(logfile.get(port_index).drink.size() - 1).get_name());
                             logfile.get(port_index).drink.get(logfile.get(port_index).drink.size() - 1).year.add(array_year);
                             logfile.get(port_index).drink.get(logfile.get(port_index).drink.size() - 1).year.get(0).month.add(array_month);
                             logfile.get(port_index).drink.get(logfile.get(port_index).drink.size() - 1).year.get(0).month.get(0).day.add(array_day);
@@ -355,39 +363,81 @@ import NetworkServer.server.*;
             }
         }
 
-        void get_Drink_month_day_money(ArrayList<Log_collect_port> logfile) {
+        List<List<String>> get_Drink_month_day_money(ArrayList<Log_collect_port> logfile) {
 
+            List<List<String>> drinkMoney = new ArrayList<>();
+            for(int i=0; i<4; i++){
+                drinkMoney.add(null);
+            }
             for (int i = 0; i < logfile.size(); i++) { // 자판기 배열 탐색
+//                System.out.println("i = " + i);
+                List<String> drinkTemp = new ArrayList<>();
+//                drinkTemp.add(Integer.toString(i));
 
                 for (int j = 0; j < logfile.get(i).drink.size(); j++) { // 해당 자판기 배열의 이름 배열 탐색
+//                    System.out.println("j = " + logfile.get(i).drink.get(j).toString());
+//                    System.out.println(logfile.get(i).drink.get(j).get_name());
+                    drinkTemp.add(logfile.get(i).drink.get(j).get_name());
 
                     for (int d = 0; d < logfile.get(i).drink.get(j).year.size(); d++) { // 해당 자판기, 이름의 년 배열 출력
 
                         for (int f = 0; f < logfile.get(i).drink.get(j).year.get(d).month.size(); f++) { // 해당 자판기, 이름의 년, 월 출력
 
-                            for (int z = 0; f < logfile.get(i).drink.get(j).year.get(d).month.get(f).day.size(); z++) { // 해당 자판기, 이름의 년, 월, 일 출력
+
+                            for (int z = 0; z < logfile.get(i).drink.get(j).year.get(d).month.get(f).day.size(); z++) { // 해당 자판기, 이름의 년, 월, 일 출력
+//
+//                                System.out.println(logfile.get(i).drink.get(j).year.get(d).month.get(f).day.get(z).get_day()+"일 "
+//                                        + logfile.get(i).drink.get(j).year.get(d).month.get(f).day.get(z).get_day_money()+"원");
+
+                                drinkTemp.add(logfile.get(i).drink.get(j).year.get(d).month.get(f).day.get(z).get_day()+"일 "
+                                        + logfile.get(i).drink.get(j).year.get(d).month.get(f).day.get(z).get_day_money()+"원");
 
                             }
+//                            System.out.println("---"+logfile.get(i).drink.get(j).year.get(d).month.get(f).get_month()+"월 " + logfile.get(i).drink.get(j).year.get(d).month.get(f).get_month_money());
+                            drinkTemp.add("---"+logfile.get(i).drink.get(j).year.get(d).month.get(f).get_month()+"월 "
+                                    + logfile.get(i).drink.get(j).year.get(d).month.get(f).get_month_money()+"원");
                         }
+//                        System.out.println("------"+ logfile.get(i).drink.get(j).year.get(d).get_year()+"년 "+logfile.get(i).drink.get(j).year.get(d).get_year_money());
+                        drinkTemp.add("------"+ logfile.get(i).drink.get(j).year.get(d).get_year()+"년 "+logfile.get(i).drink.get(j).year.get(d).get_year_money()+"원");
+
                     }
                 }
+                drinkMoney.set(i, drinkTemp);
             }
+            System.out.println("drinkMoney = " + drinkMoney);
+            return drinkMoney;
         }
 
-        void get_Drink_month_day_money_without_drink(ArrayList<Log_collect_port_without_drink> logfile) {
+        List<List<String>> get_Drink_month_day_money_without_drink(ArrayList<Log_collect_port_without_drink> logfile) {
+            List<List<String>> drinkDate = new ArrayList<>();
+            for(int i=0; i<4; i++){
+                drinkDate.add(null);
+            }
 
             for (int i = 0; i < logfile.size(); i++) { // 자판기 배열 탐색
+                List<String> drinkTemp = new ArrayList<>();
 
                     for (int d = 0; d < logfile.get(i).year.size(); d++) { // 자판기, 년도 배열 출력
+                        drinkTemp.add(logfile.get(i).year.get(d).get_year()+"년 "+ logfile.get(i).year.get(d).get_year_money()+"원");
+
 
                         for (int f = 0; f < logfile.get(i).year.get(d).month.size(); f++) { // 자판기, 년도, 월 배열 출력
+                            drinkTemp.add("---"+logfile.get(i).year.get(d).month.get(f).get_month() +"월 "+  logfile.get(i).year.get(d).month.get(f).get_month_money()+"원");
 
-                            for (int z = 0; f < logfile.get(i).year.get(d).month.get(f).day.size(); z++) { // 자판기, 년도, 월, 일 배열 출력
 
+                            for (int z = 0; z< logfile.get(i).year.get(d).month.get(f).day.size(); z++) { // 자판기, 년도, 월, 일 배열 출력
+//                                System.out.println(logfile.get(i).year.get(d).month.get(f).day.get(z).get_day()+"일 "+ logfile.get(i).year.get(d).month.get(f).day.get(z).get_day_money());
+                                drinkTemp.add("------"+logfile.get(i).year.get(d).month.get(f).day.get(z).get_day()+"일 "+ logfile.get(i).year.get(d).month.get(f).day.get(z).get_day_money()+"원");
                             }
+//                            System.out.println("---"+logfile.get(i).year.get(d).month.get(f).get_month() +"월 "+  logfile.get(i).year.get(d).month.get(f).get_month_money());
+
                         }
+//                        System.out.println("------"+logfile.get(i).year.get(d).get_year()+"년 "+ logfile.get(i).year.get(d).get_year_money());
+
                     }
+                drinkDate.set(i, drinkTemp);
                 }
+            return drinkDate;
         }
     }
 

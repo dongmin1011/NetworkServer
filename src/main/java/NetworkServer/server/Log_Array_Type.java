@@ -24,6 +24,15 @@ class Log_collect_day { // 일 매출 클래스
     public int get_day_money() {
         return sum; // 합산된 일 매출 반환
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(day);
+//        sb.append("일" );
+
+        return sb.toString();
+    }
 }
 
 class Log_collect_month { // 월 매출 클레스
@@ -52,6 +61,13 @@ class Log_collect_month { // 월 매출 클레스
         return i; // 더한 값을 반환
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(month);
+
+        return sb.toString();
+    }
 }
 
 class Log_collect_year { // 년도 클래스
@@ -78,6 +94,12 @@ class Log_collect_year { // 년도 클래스
 
         return i; // 더한 값을 반환
     }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(year);
+        return sb.toString();
+    }
 }
 
 class Log_collect_name { // 음료 클래스
@@ -103,6 +125,13 @@ class Log_collect_name { // 음료 클래스
 
         return i; // 더한 값을 반환
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(name);
+        return sb.toString();
+    }
 }
 
 class Log_collect_port { // 포트 클래스
@@ -127,6 +156,13 @@ class Log_collect_port { // 포트 클래스
         }
 
         return i; // 더한 값을 반환
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(port);
+        return sb.toString();
     }
 }
 

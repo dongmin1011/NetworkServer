@@ -3,6 +3,7 @@ package NetworkServer;
 
 
 import java.io.Serializable;
+import java.util.List;
 
 public class drinkList {
 
@@ -11,6 +12,8 @@ public class drinkList {
     private String [] drinksName ;
     private int [] drinkPrice ;
     private int [] drinkStock ;
+
+    private List<String > drinkMoneyList;
 
     public drinkList(int c, String[] names, int[] price, int[] stock){
         uniqueNum =c;
@@ -49,5 +52,13 @@ public class drinkList {
 
     public int[] getDrinkStock() {
         return drinkStock;
+    }
+
+    public List<String> getDrinkMoneyList() {
+        return drinkMoneyList;
+    }
+
+    public void setDrinkMoneyList(List<String> drinkMoneyList) {
+        this.drinkMoneyList = drinkMoneyList;
     }
 }

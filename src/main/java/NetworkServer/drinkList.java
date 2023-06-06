@@ -42,6 +42,10 @@ public class drinkList {
         this.drinkStock = drinkStock;
     }
 
+    public void setDrinkStockNotArray(int index ,int drinkStock) {
+        this.drinkStock[index] = drinkStock;
+    }
+
     public int getUniqueNum() {
         return uniqueNum;
     }
@@ -50,12 +54,24 @@ public class drinkList {
         return drinksName;
     }
 
+    public String getDrinksNameNotArray(int index) {
+        return this.drinksName[index];
+    }
+
     public int[] getDrinkPrice() {
         return drinkPrice;
     }
 
+    public int getDrinksPriceNotArray(int index) {
+        return this.drinkPrice[index];
+    }
+
     public int[] getDrinkStock() {
         return drinkStock;
+    }
+
+    public int getDrinksStockNotArray(int index) {
+        return this.drinkStock[index];
     }
 
     public List<String> getDrinkMoneyList() {
@@ -65,4 +81,5 @@ public class drinkList {
     public void setDrinkMoneyList(List<String> drinkMoneyList) {
         this.drinkMoneyList = drinkMoneyList;
     }
+
 }

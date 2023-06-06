@@ -5,6 +5,7 @@ import NetworkServer.drinkList;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class Server {
 
@@ -139,16 +140,67 @@ public class Server {
                         }
                         else if(startchar == 'B')
                         {
+                            StringTokenizer st = new StringTokenizer(MessageToFile, " 원 일 년 월"); // 띄어쓰기와 원을 구분자로 문자열을 나눔
+                            int port = Integer.parseInt(st.nextToken());
+                            // 나눈 첫 부위는 포트이므로 문자열을 숫자로 변환하여 년도에 넣음
+                            int year = Integer.parseInt(st.nextToken());
+                            // 나눈 첫 부위는 년도이므로 문자열을 숫자로 변환하여 년도에 넣음
+                            int month = Integer.parseInt(st.nextToken());
+                            // 나눈 두번째 부위는 월이므로 문자열을 정수로 변환하여 달 숫자에 넣음
+                            int day = Integer.parseInt(st.nextToken());
+                            // 나눈 세번째 부위는 일이므로 문자열을 정수로 변환하여 달 숫자에 넣음
+                            String name = st.nextToken();
+                            // 나눈 네번째 부위는 이름이므로 문자열 넣음
+                            int price = Integer.parseInt(st.nextToken());
+                            // 나눈 다섯번째 부위는 가격이므로 문자열을 정수로 변환하여 달 숫자에 넣음
+
+                            for(int i = 0; i < drinks.length; i++)
+                            {
+                                if(drinks[i].getUniqueNum() == port)
+                                {
+                                    System.out.println(drinks[i].getDrinksName().length);
+                                    for(int j = 0; j < drinks[i].getDrinksName().length; j++)
+                                    {
+                                        System.out.println(drinks[i].getDrinksNameNotArray(j).equals(name) + " " + drinks[i].getDrinksPriceNotArray(j));
+                                        if(drinks[i].getDrinksNameNotArray(j).equals(name) && drinks[i].getDrinksPriceNotArray(j) == price)
+                                        {
+                                            System.out.println("재고: " + (drinks[i].getDrinksStockNotArray(j) - 1));
+                                            drinks[i].setDrinkStockNotArray(j,drinks[i].getDrinksStockNotArray(j) - 1);
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+
                             files.SaleFileWrite(MessageToFile, true);
                         }
                         else if(startchar == 'C')
                         {
                             files.SoldOutWrite(MessageToFile, true);
                         }
-//                    else if(startchar == 'D'){
-//
-//                        continue;
-//                    }
+                         else if(startchar == 'D'){
+                            StringTokenizer st = new StringTokenizer(MessageToFile, " "); // 띄어쓰기와 원을 구분자로 문자열을 나눔
+                            int port = Integer.parseInt(st.nextToken());
+                            // 나눈 첫 부위는 포트이므로 문자열을 숫자로 변환하여 년도에 넣음
+                             for(int i = 0; i < drinks.length; i++) {
+                                 if(drinks[i].getUniqueNum() == port) {
+                                     String drinkListString = drinks[i].getUniqueNum() + " ";
+                                     for (int j = 0; j < 5; j++) {
+                                         drinkListString += drinks[i].getDrinksNameNotArray(j) + " ";
+                                         drinkListString += drinks[i].getDrinksPriceNotArray(j) + " ";
+                                         drinkListString += drinks[i].getDrinksStockNotArray(j) + " ";
+                                     } // 서버 상의 데이터와 비교
+                                     if (drinkListString.equals(MessageToFile)) {
+                                         MessageToFile = "Yes";
+                                         break;
+                                     } else {
+                                         MessageToFile = "No";
+                                         break;
+                                     }
+                                 }
+                             }
+                        }
                         // 수신 받은 데이터를 포트 번호와 함께 파일로 입력
 
                         httpServerManager.updateList();

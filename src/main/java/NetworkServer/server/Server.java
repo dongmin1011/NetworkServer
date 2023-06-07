@@ -156,7 +156,7 @@ public class Server {
 
                             for(int i = 0; i < drinks.length; i++)
                             {
-                                if(drinks[i].getUniqueNum() == port)
+                                if(drinks[i] != null && drinks[i].getUniqueNum() == port)
                                 {
                                     System.out.println(drinks[i].getDrinksName().length);
                                     for(int j = 0; j < drinks[i].getDrinksName().length; j++)
@@ -180,11 +180,11 @@ public class Server {
                             files.SoldOutWrite(MessageToFile, true);
                         }
                          else if(startchar == 'D'){
-                            StringTokenizer st = new StringTokenizer(MessageToFile, " "); // 띄어쓰기와 원을 구분자로 문자열을 나눔
+                            StringTokenizer st = new StringTokenizer(MessageToFile, " "); // 띄어쓰기를구분자로 문자열을 나눔
                             int port = Integer.parseInt(st.nextToken());
                             // 나눈 첫 부위는 포트이므로 문자열을 숫자로 변환하여 년도에 넣음
                              for(int i = 0; i < drinks.length; i++) {
-                                 if(drinks[i].getUniqueNum() == port) {
+                                 if(drinks[i] != null && drinks[i].getUniqueNum() == port) {
                                      String drinkListString = drinks[i].getUniqueNum() + " ";
                                      for (int j = 0; j < 5; j++) {
                                          drinkListString += drinks[i].getDrinksNameNotArray(j) + " ";
@@ -200,6 +200,24 @@ public class Server {
                                      }
                                  }
                              }
+                        } else if (startchar == 'E') {
+                            StringTokenizer st = new StringTokenizer(MessageToFile, " ");
+                            int port = Integer.parseInt(st.nextToken());
+                            int index = Integer.parseInt(st.nextToken());
+                            String name = st.nextToken();
+                            int price = Integer.parseInt(st.nextToken());
+                            int stock = Integer.parseInt(st.nextToken()); // 정보를 담음
+
+                            for(int i = 0; i < drinks.length; i++)
+                            {
+                                if(drinks[i] != null && drinks[i].getUniqueNum() == port)
+                                {
+                                    drinks[i].setDrinksName(index, name);
+                                    drinks[i].setDrinkPrice(index, price);
+                                    drinks[i].setDrinkStockNotArray(index, stock);
+                                }
+                            }
+
                         }
                         // 수신 받은 데이터를 포트 번호와 함께 파일로 입력
 

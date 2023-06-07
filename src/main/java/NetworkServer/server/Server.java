@@ -98,6 +98,7 @@ public class Server {
 
 
                     int number = Character.getNumericValue(initData.charAt(0));
+//                System.out.println("number = " + number);
                     String drinkData = initData.substring(1);
 
                     String[] words = drinkData.split(" ");
@@ -219,14 +220,27 @@ public class Server {
                             }
 
                         }
+                        else if (receivedMessage.equals("Request")) {
+                            String response="";
+                            String[] drinksName = drinks[number - 1].getDrinksName();
+                            int [] drinkPrice = drinks[number-1].getDrinkPrice();
+                            for(int i=0; i<5; i++){
+                                response +=drinksName[i]+" ";
+                                response += drinkPrice[i]+" ";
+
+                            }
+                            MessageToFile = response;
+
+
+                        }
                         // 수신 받은 데이터를 포트 번호와 함께 파일로 입력
 
                         httpServerManager.updateList();
 
-                        String[] drinksName = drinks[number - 1].getDrinksName();
-                        for(int i=0; i<drinksName.length; i++){
-                            System.out.println("drinksName = " + drinksName[i]);
-                        }
+//                        String[] drinksName = drinks[number - 1].getDrinksName();
+//                        for(int i=0; i<drinksName.length; i++){
+//                            System.out.println("drinksName = " + drinksName[i]);
+//                        }
 
 
                         // 받은 데이터를 클라이언트에게 다시 전송
